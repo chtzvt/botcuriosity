@@ -1,0 +1,31 @@
+{
+  "name": "BotCuriosity",
+  "version": "1.0.0",
+  "description": "Posts the latest images from teh Mars curiosity rover to Twitter",
+  "keywords": [
+    "twitter",
+    "mars"
+  ],
+  "author": {
+    "name": "Charlton Trezevant",
+    "email": "ct@charltontrezevant.com",
+    "url": "https://www.ctis.me/"
+  },
+  "homepage": "https://twitter.com/BotCuriosity",
+
+  "engines": {
+    "node": ">= 4.0.0",
+    "npm": ">= 3.10.8"
+  },
+
+  "dependencies": {
+    "twit": "2.2.5",
+    "node-base64-image": "~1.0.3",
+    "cron": "~1.2.1"
+  },
+
+  "devDependencies": {},
+  "bundleDependencies": [],
+  "private": false,
+  "main": "main.js"
+}
