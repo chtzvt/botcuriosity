@@ -3,24 +3,7 @@ var base64 = require('node-base64-image');
 var cron = require('cron').CronJob;
 var http = require('http');
 var https = require('https');
-
-var CONFIG = {
-    TWITTER_API_KEYS: {
-        consumer_key: ' ',
-        consumer_secret: ' ',
-        access_token: ' ',
-        access_token_secret: ' '
-    },
-    IP: process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1",
-    PORT: process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 8082,
-    TWITTER_URL: "https://twitter.com/botcuriosity",
-    CAM: 'FHAZ',
-    API_KEY: 'DEMO_KEY',
-    CRON: {
-        TIME: '00 00 13 * * *',
-        TIMEZONE: 'America/New_York'
-    }
-};
+var CONFIG = require('./curiositybot-config.js');
 
 var client = new twit(CONFIG.TWITTER_API_KEYS);
 console.info('CURBOT_INFO: Starting ' + CONFIG.TWITTER_URL + ' on ' + CONFIG.IP + ':' + CONFIG.PORT);
@@ -38,7 +21,8 @@ function tweetPhoto(link) {
 }
 
 function checkForImage() {
-    var api_link = 'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date=' + getDate() + '&camera=' + CONFIG.CAM + '&api_key=' + CONFIG.API_KEY;
+    var api_link = 'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos?earth_date=' + getDate() + '&api_key=' + CONFIG.API_KEY;
+
     https.get(api_link, function(res) {
         var api_data = '';
         res.on('data', function(c) { api_data += c; });
@@ -50,15 +34,25 @@ function checkForImage() {
                 return;
             }
 
-            if (!("error" in api_data))
-                tweetPhoto(api_data.photos[0].img_src);
+            if (!("error" in api_data)){
+                var filteredPhotos = api_data.photos.filter(photoFilter);
+                tweetPhoto(getRandom(filteredPhotos).img_src);
+            }
         });
     });
 }
 
 function getDate() {
     var d = new Date();
-    return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + (d.getDate()-3);
+    return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + (d.getDate() > 3 ? (d.getDate()-3) : d.getDate());
+}
+
+function photoFilter(i){
+    return CONFIG.CAM_BLACKLIST.indexOf(i.camera.name) == -1;
+}
+
+function getRandom(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
 }
 
 var sched = new cron({
