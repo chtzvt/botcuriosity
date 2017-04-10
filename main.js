@@ -34,9 +34,11 @@ function checkForImage() {
                 return;
             }
 
-            if (!("error" in api_data)){
+            if (!("error" in api_data) && api_data.photos.length > 0){
                 var filteredPhotos = api_data.photos.filter(photoFilter);
                 tweetPhoto(getRandom(filteredPhotos).img_src);
+            } else {
+              console.log('No photos for '+getDate()+'.');
             }
         });
     });
